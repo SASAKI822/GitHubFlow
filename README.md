@@ -1,34 +1,138 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GitHubFlow
 
-## Getting Started
+## 1. 初期ブランチ構築（スクラムマスター）
 
-First, run the development server:
+- ローカルリポジトリで初期環境構築
+- リモートリポジトリに main ブランチ作成
+- ローカルリポジトリのブランチ名を main に変更
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+  ```sh
+  $ git branch -m master main
+  ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- ローカルリポジトリで initial commit してリモートへプッシュ
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+  ```sh
+  $ git add .
+  $ git commit -m "initial commit"
+  $ git remote add origin git@github.com:hfujiyos/gatsbyjs-site.git
+  $ git push -u origin main
+  ```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+- リモートリポジトリにプロジェクト作成
+- リモートリポジトリのプロジェクト設定
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+  ```
+  プルリクエストがマージされた後、ヘッドブランチを自動的に削除
+  ☑︎Automatically delete head branches
+  ```
 
-## Learn More
+## 2. イシュー定義（レビュア）
 
-To learn more about Next.js, take a look at the following resources:
+- リモートリポジトリにイシューを作成して開発者をアサイン
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  ```
+  Add login mock
+  Fix login logic
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## 3. チケット駆動開発（開発者）
 
-## Deploy on Vercel
+- ローカルリポジトリで main ブランチの最新のソースをプル
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  ```sh
+  mainブランチに切替
+  $ git checkout main
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  mainブランチの最新ソースをリモートリポジトリからプル
+  $ git pull
+  ```
+
+- ローカルリポジトリに feature ブランチを切る
+
+  ```sh
+  featureブランチを新規作成してブランチ切替
+  $ git checkout -b feature/fixLoginLogic
+  ```
+
+- ローカルリポジトリに feature ブランチで、コーディング / コミット / プッシュ
+
+  ```sh
+  開発時にはコミット
+  $ git add .
+  $ git commit -m "Fix login logic"
+
+  featureブランチをリモートリポジトリへプッシュ
+  $ git push origin HEAD
+  ```
+
+- リモートリポジトリの feature ブランチを、リモートリポジトリの main ブランチへマージ依頼するプルリクエスト
+
+  ```
+  マージする際にイシューもクローズするコメント付与
+  $ close #9
+  ```
+
+## 4. コードレビュー（レビュア）
+
+- レビュアにて、コードレビュー / 承認
+
+- レビュアにて、main ブランチへマージ
+
+## 5. 後工程（開発者）
+
+- マージ後の main ブランチを取得する
+- ローカルリポジトリで main ブランチの最新のソースをプル
+
+  ```sh
+  mainブランチに切替
+  $ git checkout main
+
+  mainブランチの最新ソースをリモートリポジトリからプル
+  $ git pull
+  ```
+
+- ローカルリポジトリの不要ブランチ削除
+
+  ```sh
+  現在のブランチがmainであるか確認
+  $ git branch
+    feature/funcE
+  * main
+
+  ローカルリポジトリの不要ブランチを削除
+  $ git branch -D feature/funcE
+
+  不要ブランチが削除されていることを確認
+  $ git branch
+  * main
+  ```
+
+## 【番外編】Git 作業にミスしたとき
+
+### 直前にコミットしたメッセージを変更する
+
+- 直前コミットのメッセージのみを変更する
+
+  ```sh
+  $ git add -A
+  $ git commit -m "htmlを修正"
+  #あっ　今のコミット内容、cssの修正だった！書き直したい…！
+  $ git commit --amend -m "cssを修正"
+  #これで直前のコミットが更新されました！
+  ```
+
+### コミットの内容を取り消して無かったことにして最初からやり直したい
+
+- 作業ディレクトリ
+
+  - 変更・作成したもの全てリセットされる（直前のコミット状態になる）
+
+- ステージングエリア
+
+  - アンステージされる
+
+  ```sh
+  直前のコミットの状態に戻る
+  $ git reset --hard HEAD
+  ```
